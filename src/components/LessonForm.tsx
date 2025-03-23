@@ -1,4 +1,4 @@
-import { Lesson, Student } from '@prisma/client';
+import type { Lesson, Student } from '@prisma/client';
 import { useForm } from 'react-hook-form';
 
 type LessonWithStudent = Lesson & {

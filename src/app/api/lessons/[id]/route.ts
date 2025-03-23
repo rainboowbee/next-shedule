@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { type NextApiRequest } from 'next';
 
-// Update the interface to match Next.js expectations
+// Обновление урока
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const id = params.id;
     const data = await request.json();
     const lesson = await prisma.lesson.update({
-      where: {
-        id: params.id,
-      },
+      where: { id },
       data: {
         title: data.title,
         description: data.description,
@@ -19,10 +19,9 @@ export async function PUT(
         endTime: new Date(data.endTime),
         studentId: data.studentId,
       },
-      include: {
-        student: true,
-      },
+      include: { student: true },
     });
+
     return NextResponse.json(lesson);
   } catch (error) {
     console.error('Error updating lesson:', error);
@@ -33,16 +32,17 @@ export async function PUT(
   }
 }
 
+// Удаление урока
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const id = params.id;
     await prisma.lesson.delete({
-      where: {
-        id: params.id,
-      },
+      where: { id },
     });
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting lesson:', error);

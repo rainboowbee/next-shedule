@@ -1,4 +1,4 @@
-import { Lesson, Student } from '@prisma/client';
+import type { Lesson, Student } from '@prisma/client';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
@@ -9,7 +9,7 @@ type LessonWithStudent = Lesson & {
 interface LessonListProps {
   lessons: LessonWithStudent[];
   onEdit: (lesson: LessonWithStudent) => void;
-  onDelete: (lessonId: string) => void;
+  onDelete: (id: string) => void;
 }
 
 export default function LessonList({ lessons, onEdit, onDelete }: LessonListProps) {

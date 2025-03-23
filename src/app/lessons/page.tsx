@@ -1,7 +1,7 @@
 'use client';
 
+import type { Lesson, Student } from '@prisma/client';
 import { useState, useEffect } from 'react';
-import { Lesson, Student } from '@prisma/client';
 import LessonList from '@/components/LessonList';
 import LessonForm from '@/components/LessonForm';
 
