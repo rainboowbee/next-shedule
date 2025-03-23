@@ -5,6 +5,7 @@ const nextConfig = {
   },
   experimental: {
     serverActions: true,
+    missingSuspenseWithCSRError: false,
   },
   async headers() {
     return [

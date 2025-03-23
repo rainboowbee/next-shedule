@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// This is needed for Next.js to know which paths to pre-render
+export async function generateStaticParams() {
+  return [];
+}
 
 // Получение урока по ID
 export async function GET(
@@ -54,14 +56,25 @@ export async function PUT(
   try {
     const data = await request.json();
     
-    // Проверяем существование урока
-    const existingLesson = await prisma.lesson.findUnique({
-      where: { id: params.id },
+    // Validate required fields
+    if (!data.title || !data.startTime || !data.endTime || !data.studentId) {
+      return NextResponse.json(
+        { 
+          error: 'Missing required fields',
+          required: ['title', 'startTime', 'endTime', 'studentId']
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validate student exists
+    const student = await prisma.student.findUnique({
+      where: { id: data.studentId },
     });
 
-    if (!existingLesson) {
+    if (!student) {
       return NextResponse.json(
-        { error: 'Lesson not found' },
+        { error: 'Student not found' },
         { status: 404 }
       );
     }
@@ -101,7 +114,7 @@ export async function DELETE(
   }
 
   try {
-    // Проверяем существование урока
+    // Validate lesson exists
     const existingLesson = await prisma.lesson.findUnique({
       where: { id: params.id },
     });

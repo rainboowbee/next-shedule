@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 export async function GET() {
   try {
     const lessons = await prisma.lesson.findMany({
@@ -15,22 +12,12 @@ export async function GET() {
       },
     });
     
-    return new NextResponse(JSON.stringify(lessons), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    return NextResponse.json(lessons);
   } catch (error) {
     console.error('Error fetching lessons:', error);
-    return new NextResponse(
-      JSON.stringify({ error: 'Failed to fetch lessons' }), 
-      { 
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
+    return NextResponse.json(
+      { error: 'Failed to fetch lessons' },
+      { status: 500 }
     );
   }
 }
@@ -41,17 +28,12 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!data.title || !data.startTime || !data.endTime || !data.studentId) {
-      return new NextResponse(
-        JSON.stringify({ 
+      return NextResponse.json(
+        { 
           error: 'Missing required fields',
           required: ['title', 'startTime', 'endTime', 'studentId']
-        }),
-        { 
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+        },
+        { status: 400 }
       );
     }
 
@@ -61,14 +43,9 @@ export async function POST(request: NextRequest) {
     });
 
     if (!student) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Student not found' }),
-        { 
-          status: 404,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+      return NextResponse.json(
+        { error: 'Student not found' },
+        { status: 404 }
       );
     }
 
@@ -85,22 +62,12 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return new NextResponse(JSON.stringify(lesson), {
-      status: 201,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    return NextResponse.json(lesson, { status: 201 });
   } catch (error) {
     console.error('Error creating lesson:', error);
-    return new NextResponse(
-      JSON.stringify({ error: 'Failed to create lesson' }),
-      { 
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
+    return NextResponse.json(
+      { error: 'Failed to create lesson' },
+      { status: 500 }
     );
   }
 } 
