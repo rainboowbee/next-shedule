@@ -22,13 +22,6 @@ const nextConfig = {
   },
   // Disable static page generation for API routes
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
-  // Enable edge runtime
-  experimental: {
-    serverActions: true,
-    missingSuspenseWithCSRError: false,
-    runtime: 'edge',
-    serverComponents: true,
-  },
 };
 
 module.exports = nextConfig;

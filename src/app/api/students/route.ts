@@ -3,7 +3,6 @@ import prisma from '@/lib/prisma';
 
 // Mark this route as dynamic
 export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
 
 // Disable static generation for this route
 export const fetchCache = 'force-no-store';
