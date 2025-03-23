@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
+// Mark this route as dynamic
+export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
+
+// Disable static generation for this route
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const lessons = await prisma.lesson.findMany({

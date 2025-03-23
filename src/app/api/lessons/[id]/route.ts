@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-// This is needed for Next.js to know which paths to pre-render
-export async function generateStaticParams() {
-  return [];
-}
+// Mark this route as dynamic
+export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
+
+// Disable static generation for this route
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
 
 // Получение урока по ID
 export async function GET(
