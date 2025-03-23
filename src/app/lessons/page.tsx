@@ -9,6 +9,14 @@ type LessonWithStudent = Lesson & {
   student: Student;
 };
 
+interface LessonFormData {
+  title: string;
+  description?: string;
+  startTime: string;
+  endTime: string;
+  studentId: string;
+}
+
 export default function LessonsPage() {
   const [lessons, setLessons] = useState<LessonWithStudent[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
@@ -45,7 +53,7 @@ export default function LessonsPage() {
     fetchData();
   }, []);
 
-  const handleCreateLesson = async (data: any) => {
+  const handleCreateLesson = async (data: LessonFormData) => {
     try {
       const response = await fetch('/api/lessons', {
         method: 'POST',
@@ -67,7 +75,7 @@ export default function LessonsPage() {
     }
   };
 
-  const handleUpdateLesson = async (data: any) => {
+  const handleUpdateLesson = async (data: LessonFormData) => {
     if (!editingLesson) return;
 
     try {

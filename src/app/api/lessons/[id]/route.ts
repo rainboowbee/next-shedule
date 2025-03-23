@@ -1,13 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
-
-export async function PUT(request: Request, { params }: RouteParams) {
+// Update the interface to match Next.js expectations
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const data = await request.json();
     const lesson = await prisma.lesson.update({
@@ -35,7 +33,10 @@ export async function PUT(request: Request, { params }: RouteParams) {
   }
 }
 
-export async function DELETE(request: Request, { params }: RouteParams) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     await prisma.lesson.delete({
       where: {
@@ -50,4 +51,4 @@ export async function DELETE(request: Request, { params }: RouteParams) {
       { status: 500 }
     );
   }
-} 
+}
