@@ -1,25 +1,20 @@
 import { PrismaClient } from '@prisma/client';
 
-const prismaClientSingleton = () => {
-  return new PrismaClient({
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined
+};
+
+export const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: ['query'],
     datasources: {
       db: {
         url: process.env.DATABASE_URL,
       },
     },
   });
-};
 
-// Using var is necessary here for proper global declaration in Next.js
-declare global {
-  // eslint-disable-next-line no-var
-  var prisma: undefined | ReturnType<typeof prismaClientSingleton>;
-}
-
-const prisma = globalThis.prisma ?? prismaClientSingleton();
-
-if (process.env.NODE_ENV !== 'production') {
-  globalThis.prisma = prisma;
-}
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 export default prisma; 

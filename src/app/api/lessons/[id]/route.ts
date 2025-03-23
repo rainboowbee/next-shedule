@@ -1,16 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { type NextApiRequest } from 'next';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // Получение урока по ID
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  if (!params.id) {
+    return NextResponse.json(
+      { error: 'Lesson ID is required' },
+      { status: 400 }
+    );
+  }
+
   try {
-    const id = params.id;
     const lesson = await prisma.lesson.findUnique({
-      where: { id },
+      where: { id: params.id },
       include: { student: true },
     });
 
@@ -36,13 +44,19 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  if (!params.id) {
+    return NextResponse.json(
+      { error: 'Lesson ID is required' },
+      { status: 400 }
+    );
+  }
+
   try {
-    const id = params.id;
     const data = await request.json();
     
     // Проверяем существование урока
     const existingLesson = await prisma.lesson.findUnique({
-      where: { id },
+      where: { id: params.id },
     });
 
     if (!existingLesson) {
@@ -53,7 +67,7 @@ export async function PUT(
     }
 
     const lesson = await prisma.lesson.update({
-      where: { id },
+      where: { id: params.id },
       data: {
         title: data.title,
         description: data.description,
@@ -79,12 +93,17 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  if (!params.id) {
+    return NextResponse.json(
+      { error: 'Lesson ID is required' },
+      { status: 400 }
+    );
+  }
+
   try {
-    const id = params.id;
-    
     // Проверяем существование урока
     const existingLesson = await prisma.lesson.findUnique({
-      where: { id },
+      where: { id: params.id },
     });
 
     if (!existingLesson) {
@@ -95,7 +114,7 @@ export async function DELETE(
     }
 
     await prisma.lesson.delete({
-      where: { id },
+      where: { id: params.id },
     });
 
     return NextResponse.json({ success: true });
