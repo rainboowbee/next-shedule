@@ -99,8 +99,8 @@ export async function PUT(
       data: {
         title: data.title,
         description: data.description,
-        startTime: new Date(data.startTime + 'Z'),
-        endTime: new Date(data.endTime + 'Z'),
+        startTime: new Date(data.startTime),
+        endTime: new Date(data.endTime),
         studentId: data.studentId,
       },
       include: { student: true },

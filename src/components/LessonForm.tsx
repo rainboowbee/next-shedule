@@ -1,5 +1,7 @@
 import type { Lesson, Student } from '@prisma/client';
 import { useForm } from 'react-hook-form';
+import { formatInTimeZone } from 'date-fns-tz';
+import { parseISO } from 'date-fns';
 
 type LessonWithStudent = Lesson & {
   student: Student;
@@ -26,15 +28,44 @@ export default function LessonForm({ lesson, students, onSubmit, onCancel }: Les
       ? {
           title: lesson.title,
           description: lesson.description || '',
-          startTime: new Date(lesson.startTime).toLocaleString('sv').slice(0, 16),
-          endTime: new Date(lesson.endTime).toLocaleString('sv').slice(0, 16),
+          startTime: formatInTimeZone(new Date(lesson.startTime), 'Europe/Moscow', "yyyy-MM-dd'T'HH:mm"),
+          endTime: formatInTimeZone(new Date(lesson.endTime), 'Europe/Moscow', "yyyy-MM-dd'T'HH:mm"),
           studentId: lesson.studentId,
         }
       : undefined,
   });
 
+  const handleFormSubmit = (data: LessonFormData) => {
+    // Конвертируем время из МСК в UTC
+    const startDate = new Date(data.startTime);
+    const endDate = new Date(data.endTime);
+    
+    // Создаем даты в UTC
+    const startTimeUTC = new Date(Date.UTC(
+      startDate.getUTCFullYear(),
+      startDate.getUTCMonth(),
+      startDate.getUTCDate(),
+      startDate.getUTCHours(),
+      startDate.getUTCMinutes()
+    ));
+    
+    const endTimeUTC = new Date(Date.UTC(
+      endDate.getUTCFullYear(),
+      endDate.getUTCMonth(),
+      endDate.getUTCDate(),
+      endDate.getUTCHours(),
+      endDate.getUTCMinutes()
+    ));
+
+    onSubmit({
+      ...data,
+      startTime: startTimeUTC.toISOString(),
+      endTime: endTimeUTC.toISOString(),
+    });
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       <div>
         <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
           Название
@@ -62,36 +93,34 @@ export default function LessonForm({ lesson, students, onSubmit, onCancel }: Les
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label htmlFor="startTime" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-            Время начала
-          </label>
-          <input
-            type="datetime-local"
-            id="startTime"
-            {...register('startTime', { required: 'Обязательное поле' })}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
-          />
-          {errors.startTime && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.startTime.message}</p>
-          )}
-        </div>
+      <div>
+        <label htmlFor="startTime" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+          Время начала (МСК)
+        </label>
+        <input
+          type="datetime-local"
+          id="startTime"
+          {...register('startTime', { required: 'Обязательное поле' })}
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
+        />
+        {errors.startTime && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.startTime.message}</p>
+        )}
+      </div>
 
-        <div>
-          <label htmlFor="endTime" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-            Время окончания
-          </label>
-          <input
-            type="datetime-local"
-            id="endTime"
-            {...register('endTime', { required: 'Обязательное поле' })}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
-          />
-          {errors.endTime && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.endTime.message}</p>
-          )}
-        </div>
+      <div>
+        <label htmlFor="endTime" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+          Время окончания (МСК)
+        </label>
+        <input
+          type="datetime-local"
+          id="endTime"
+          {...register('endTime', { required: 'Обязательное поле' })}
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
+        />
+        {errors.endTime && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.endTime.message}</p>
+        )}
       </div>
 
       <div>
@@ -115,7 +144,7 @@ export default function LessonForm({ lesson, students, onSubmit, onCancel }: Les
         )}
       </div>
 
-      <div className="flex justify-end space-x-3">
+      <div className="flex justify-end gap-4">
         <button
           type="button"
           onClick={onCancel}

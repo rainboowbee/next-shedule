@@ -1,5 +1,5 @@
 import type { Lesson, Student } from '@prisma/client';
-import { format, isSameDay, startOfWeek, addDays } from 'date-fns';
+import { format, toZonedTime } from 'date-fns-tz';
 import { ru } from 'date-fns/locale';
 
 type LessonWithStudent = Lesson & {
@@ -13,11 +13,17 @@ interface LessonListProps {
 }
 
 export default function LessonList({ lessons, onEdit, onDelete }: LessonListProps) {
+  // Функция для конвертации времени в МСК
+  const toMoscowTime = (date: Date | string) => {
+    const moscowTimeZone = 'Europe/Moscow';
+    return toZonedTime(new Date(date), moscowTimeZone);
+  };
+
   // Группируем занятия по дням недели
   const groupedLessons = lessons.reduce((acc, lesson) => {
-    const lessonDate = new Date(lesson.startTime);
-    const dayKey = format(lessonDate, 'yyyy-MM-dd');
-    const dayOfWeek = format(lessonDate, 'EEEE', { locale: ru });
+    const lessonDate = toMoscowTime(lesson.startTime);
+    const dayKey = format(lessonDate, 'yyyy-MM-dd', { timeZone: 'Europe/Moscow' });
+    const dayOfWeek = format(lessonDate, 'EEEE', { locale: ru, timeZone: 'Europe/Moscow' });
     
     if (!acc[dayKey]) {
       acc[dayKey] = {
@@ -39,11 +45,11 @@ export default function LessonList({ lessons, onEdit, onDelete }: LessonListProp
       {sortedDays.map(([dayKey, { date, dayOfWeek, lessons }]) => (
         <div key={dayKey} className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 capitalize">
-            {dayOfWeek}, {format(date, 'd MMMM', { locale: ru })}
+            {dayOfWeek}, {format(date, 'd MMMM', { locale: ru, timeZone: 'Europe/Moscow' })}
           </h2>
           <div className="space-y-4">
             {lessons
-              .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+              .sort((a, b) => toMoscowTime(a.startTime).getTime() - toMoscowTime(b.startTime).getTime())
               .map((lesson) => (
                 <div
                   key={lesson.id}
@@ -61,8 +67,8 @@ export default function LessonList({ lessons, onEdit, onDelete }: LessonListProp
                       )}
                       <div className="mt-2 space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {format(new Date(lesson.startTime), 'HH:mm', { locale: ru })} -{' '}
-                          {format(new Date(lesson.endTime), 'HH:mm', { locale: ru })}
+                          {format(toMoscowTime(lesson.startTime), 'HH:mm', { timeZone: 'Europe/Moscow' })} -{' '}
+                          {format(toMoscowTime(lesson.endTime), 'HH:mm', { timeZone: 'Europe/Moscow' })}
                         </p>
                         <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
                           Студент:{' '}
