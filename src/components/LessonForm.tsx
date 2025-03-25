@@ -26,8 +26,8 @@ export default function LessonForm({ lesson, students, onSubmit, onCancel }: Les
       ? {
           title: lesson.title,
           description: lesson.description || '',
-          startTime: new Date(lesson.startTime).toISOString().slice(0, 16),
-          endTime: new Date(lesson.endTime).toISOString().slice(0, 16),
+          startTime: new Date(lesson.startTime).toLocaleString('sv').slice(0, 16),
+          endTime: new Date(lesson.endTime).toLocaleString('sv').slice(0, 16),
           studentId: lesson.studentId,
         }
       : undefined,

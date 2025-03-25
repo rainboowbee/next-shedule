@@ -82,13 +82,25 @@ export async function PUT(
       );
     }
 
+    // Validate lesson exists
+    const existingLesson = await prisma.lesson.findUnique({
+      where: { id: params.id },
+    });
+
+    if (!existingLesson) {
+      return NextResponse.json(
+        { error: 'Lesson not found' },
+        { status: 404 }
+      );
+    }
+
     const lesson = await prisma.lesson.update({
       where: { id: params.id },
       data: {
         title: data.title,
         description: data.description,
-        startTime: new Date(data.startTime),
-        endTime: new Date(data.endTime),
+        startTime: new Date(data.startTime + 'Z'),
+        endTime: new Date(data.endTime + 'Z'),
         studentId: data.studentId,
       },
       include: { student: true },
